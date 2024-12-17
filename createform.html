@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Data Fields</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .updated {
+            background-color: #d4edda;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Update Data Fields</h1>
+
+    <form id="update-form">
+        <!-- Dropdown for entity selection -->
+        <div class="form-group">
+            <label for="entity-type">Select Entity:</label>
+            <select id="entity-type" name="entity-type" required>
+                <option value="">-- Select an entity --</option>
+                <option value="Sales Order">Sales Order</option>
+                <option value="Purchase Order">Purchase Order</option>
+                <option value="Item">Item</option>
+                <option value="Customer">Customer</option>
+                <option value="Vendor">Vendor</option>
+            </select>
+        </div>
+
+        <!-- Dropdown for field name selection -->
+        <div class="form-group">
+            <label for="field-name">Select Field Name:</label>
+            <select id="field-name" name="field-name" required>
+                <option value="">-- Select a field --</option>
+            </select>
+        </div>
+
+        <!-- Dropdown for datatype selection -->
+        <div class="form-group">
+            <label for="data-type">Data Type:</label>
+            <select id="data-type" name="data-type" required>
+                <option value="">-- Select a data type --</option>
+                <option value="Integer">Integer</option>
+                <option value="String">String</option>
+                <option value="Float">Float</option>
+                <option value="Boolean">Boolean</option>
+                <option value="Date">Date</option>
+            </select>
+        </div>
+
+        <!-- Dropdown for population method -->
+        <div class="form-group">
+            <label for="population-method">How is it populated?</label>
+            <select id="population-method" name="population-method" required>
+                <option value="">-- Select a method --</option>
+                <option value="Coming from other table(customer data)">Coming from other table(customer data)</option>
+		<option value="Coming from other table(product data)">Coming from other table(product data)</option>
+		<option value="Coming from other table(business/sales data)">Coming from other table(business/sales data)</option>
+		<option value="Coming from other table(store/vendor data)">Coming from other table(store/vendor data)</option>
+                <option value="Automatically created">Automatically created</option>
+                <option value="Free text">Free text</option>
+            </select>
+        </div>
+
+        <!-- Input for Definition -->
+        <div class="form-group">
+            <label for="definition">Definition:</label>
+            <input type="text" id="definition" name="definition">
+        </div>
+
+        <!-- Dropdown for Derived/Raw selection -->
+        <div class="form-group">
+            <label for="derived-raw">Is this Derived or Raw?</label>
+            <select id="derived-raw" name="derived-raw">
+                <option value="">-- Select an option --</option>
+                <option value="Raw">Raw</option>
+                <option value="Derived">Derived</option>
+            </select>
+        </div>
+
+        <!-- Input for Calculation Logic (only shown if Derived is selected) -->
+        <div class="form-group hidden" id="calculation-logic-group">
+            <label for="calculation-logic">Calculation Logic:</label>
+            <textarea id="calculation-logic" name="calculation-logic"></textarea>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div style="margin-top: 20px;">
+        <button id="view-data-btn">View Filled Data</button>
+    </div>
+    <script>
+        const entityTypeSelect = document.getElementById('entity-type');
+        const fieldNameSelect = document.getElementById('field-name');
+        const definitionInput = document.getElementById('definition');
+        const derivedRawSelect = document.getElementById('derived-raw');
+        const calculationLogicGroup = document.getElementById('calculation-logic-group');
+        const calculationLogicInput = document.getElementById('calculation-logic');
+        const dataTypeSelect = document.getElementById('data-type');
+        const populationMethodSelect = document.getElementById('population-method');
+        const viewDataBtn = document.getElementById('view-data-btn');
+
+        // Object to store updated fields
+        const updatedFields = JSON.parse(localStorage.getItem('updatedFields')) || {};
+
+        const entityFields = {
+            "Sales Order": ["VIM Location", "Order Type", "Distribution Run", "Distribution Order Number (Linked to Store)", "Orderline", "Customer Info", "Buying Fair Quarter", "Buying Fair Number", "Buying Fair Name", "Division (EK Specific)", "EK Customer Number", "Customer Name", "Sub-Industry (EK Specific)", "Sub-Industry Description", "Product Group Description", "Gender", "This is a Manual Handling (Possibility to Add in System)", "Linked to Article Subgroup", "Brand Name", "Supplier Name", "FEDAS Code", "Article", "Article Description", "Color", "Color Description", "Size", "Extra Size", "Size Sorting", "EAN", "Article Collection", "Theme", "Folder", "Order Entry Date", "Delivery Period", "Delivery Year", "Delivery Week", "First Delivery Date", "Last Delivery Date", "Delivery Month Supplier", "New Expected Delivery Date", "Disposition Code", "Disposition Description", "Reason Code Return", "Reason Description Return", "Cause of Return", "Status", "Invoice Date", "Packinglist Number", "Cancel Reason (EK Specific)", "Cancellation Reason Description (EK Specific)", "Cause of Cancellation (EK Specific)", "Last Modification Date", "Pieces in Unit", "Number of Units Sold", "Units Still to be Delivered", "Packed Units", "Cancelled Units", "Invoiced Units", "Number of Pieces Sold", "Number of Pieces to be Delivered", "Packed Pieces", "Cancelled Pieces", "Invoiced Pieces", "Cost Price Supplier per Unit", "Cost Price Value", "Gross Wholesale Price per Unit", "Retail Price per Unit", "Action Price per Unit", "Gross Amount", "Line Discount (Discount Franchisee)", "Extra Discount Line", "Net Value", "Net Value to be Delivered", "Net Value Packed", "Net Value Cancelled", "Net Value Invoiced"],
+            "Purchase Order": ["Division (EK Specific)", "Buying Fair Quarter", "Buying Fair Number", "Buying Fair Name", "PO Number", "Location VIM", "Order Entry Date", "Supplier ID", "Supplier Name", "Supplier Location", "Supplier Country", "GLN Supplier", "Sub-Industry (EK Specific)", "Sub-Industry Description", "Product Group Description", "Gender", "This is a Manual Handling (Possibility to Add in System)", "Linked to Article Subgroup", "Fedas Code", "Purchaser Code (EK Specific)", "Purchase Name (EK Specific)", "Brand Name", "Article", "Article Description", "Color Code Internal", "Color Internal", "Color", "Color Description", "Size", "Size Sorting", "Extra Size", "EAN", "Article Collection (Manual Handling)", "Delivery Condition Code", "Delivery Condition", "Delivery Address", "Requested Delivery Date", "Delivery Year", "Delivery Month", "Delivery Week", "Delivery Block Supplier", "Receipt Status", "Date Handover Planned (VIM Info)", "Departure Date Planned (VIM Info)", "Arrival Date Planned (VIM Info)", "Release Date Planned (VIM Info)", "DC Date Planned (VIM Info)", "Batch Date Planned (VIM Info)", "Date Handover Actual (VIM Info)", "Departure Date Actual (VIM Info)", "Arrival Date Actual (VIM Info)", "Release Date Actual (VIM Info)", "Date DC Actual (VIM Info)", "Date in Batch Actual (VIM Info)", "Purchasing Currency", "Unit", "Status (Received/Cancelled/Open Order/Invoiced)", "Net Value TAF Intl (Needs to Be BH - BI%)", "Gross Wholesale Price per Unit", "Discount TAF Intl (To Be Added in Report)", "Retail Price per Unit", "Action Price per Unit", "Cancellation Reason", "Cancellation Reason Description", "Cause of Cancellation", "Last Modification Date", "Pieces in Unit", "Number of Units Ordered", "Units Still to Be Received", "Cancelled Units", "Number of Units Delivered", "Number of Pieces Ordered", "Pieces Still to Be Received", "Cancelled Pieces", "Number of Pieces Delivered", "Gross Amount Ordered (VAL)", "Gross Amount Yet to Be Received (VAL)", "Gross Amount Canceled (VAL)", "Gross Amount Delivered (VAL)", "Gross Amount Ordered (EUR)", "Gross Amount Yet to Be Received (EUR)", "Gross Amount Cancelled (EUR)", "Gross Amount Delivered (EUR)", "Net Amount Ordered (VAL)", "Net Amount Yet to Be Received (VAL)", "Net Amount Canceled (VAL)", "Net Amount Delivered (VAL)", "Net Amount Ordered (EUR)", "Net Amount Yet to Be Received (EUR)", "Net Amount Cancelled (EUR)", "Net Amount Delivered (EUR)"],
+            "Item": ["Fair Quarter", "Fair Nr", "Fair Name", "Article Group", "Gender", "Article Subgroup", "Article Subgroup Description", "Brand", "Fedas Code", "Article", "Article Description", "Internal Colour Code", "Internal Code Description", "Colour", "Colour Description", "Size", "EAN/GTIN", "PCS in Unit", "Currency", "Unit Measure", "Unit Cost Price (Net Supplier)", "Discount TAF", "Gross Wholesale Price", "Recommended Retail Price"],
+            "Customer": ["Customer Number", "FZ Van", "Store Name", "Store Address", "ZIP Code", "City", "Country", "Telephone", "Province", "EAN", "E-mail Address", "Store Name", "Post Address", "ZIP Code", "City", "Country", "Telephone", "EAN", "Store Name", "Delivery Address", "ZIP Code", "City", "Country", "Telephone", "EAN", "Contact Person", "VAT Number", "Chamber of Commerce", "Rechtsvorm", "Chamber of Commerce Name"],
+            "Vendor": ["No.", "Brand", "Supplier", "Address", "Address No", "Post Code", "City", "Country", "VATNUM", "GLN", "Contact Person for TAF NL", "Email"]
+        };
+
+        // Populate field names based on selected entity
+        entityTypeSelect.addEventListener('change', () => {
+            const selectedEntity = entityTypeSelect.value;
+            fieldNameSelect.innerHTML = '<option value="">-- Select a field --</option>';
+
+            if (entityFields[selectedEntity]) {
+                entityFields[selectedEntity].forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field;
+                    option.textContent = field;
+                    if (updatedFields[field]) {
+                        option.classList.add('updated');
+                    }
+                    fieldNameSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Prefill inputs when an updated field is selected
+        fieldNameSelect.addEventListener('change', () => {
+            const selectedField = fieldNameSelect.value;
+            if (updatedFields[selectedField]) {
+                const { definition, derivedRaw, calculationLogic, dataType, populationMethod } = updatedFields[selectedField];
+                definitionInput.value = definition || '';
+                derivedRawSelect.value = derivedRaw || '';
+                calculationLogicInput.value = calculationLogic || '';
+                dataTypeSelect.value = dataType || '';
+                populationMethodSelect.value = populationMethod || '';
+
+                if (derivedRaw === 'Derived') {
+                    calculationLogicGroup.classList.remove('hidden');
+                } else {
+                    calculationLogicGroup.classList.add('hidden');
+                }
+            } else {
+                definitionInput.value = '';
+                derivedRawSelect.value = '';
+                calculationLogicInput.value = '';
+                dataTypeSelect.value = '';
+                populationMethodSelect.value = '';
+                calculationLogicGroup.classList.add('hidden');
+            }
+        });
+
+        // Show/hide Calculation Logic input based on Derived/Raw selection
+        derivedRawSelect.addEventListener('change', () => {
+            if (derivedRawSelect.value === 'Derived') {
+                calculationLogicGroup.classList.remove('hidden');
+            } else {
+                calculationLogicGroup.classList.add('hidden');
+                calculationLogicInput.value = '';
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('update-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const selectedField = fieldNameSelect.value;
+            const definition = definitionInput.value;
+            const derivedRaw = derivedRawSelect.value;
+            const calculationLogic = calculationLogicInput.value;
+            const dataType = dataTypeSelect.value;
+            const populationMethod = populationMethodSelect.value;
+
+            if (!selectedField) {
+                alert('Please select a field name.');
+                return;
+            }
+
+            updatedFields[selectedField] = { definition, derivedRaw, calculationLogic, dataType, populationMethod };
+            localStorage.setItem('updatedFields', JSON.stringify(updatedFields));
+
+            alert('Field updated successfully!');
+            const selectedEntity = entityTypeSelect.value;
+            if (entityFields[selectedEntity]) {
+                entityTypeSelect.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Redirect to view data page
+        viewDataBtn.addEventListener('click', () => {
+            window.location.href = 'view-data.html';
+        });
+
+        // Initial setup
+        if (entityTypeSelect.value) {
+            entityTypeSelect.dispatchEvent(new Event('change'));
+        }
+    </script>
+
+</body>
+</html>

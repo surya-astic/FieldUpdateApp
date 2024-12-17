@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Filled Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Filled Data</h1>
+
+    <table id="field-data-table">
+        <thead>
+            <tr>
+                <th>Field Name</th>
+                <th>Definition</th>
+                <th>Data Type</th>
+                <th>Population Method</th>
+                <th>Derived/Raw</th>
+                <th>Calculation Logic</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be populated dynamically -->
+        </tbody>
+    </table>
+	<button onclick="goBack()">Back</button>
+    <script>
+        const fieldDataTable = document.getElementById('field-data-table').querySelector('tbody');
+        const updatedFields = JSON.parse(localStorage.getItem('updatedFields')) || {};
+
+        // Function to populate the table
+        function populateTable() {
+            fieldDataTable.innerHTML = '';
+            Object.keys(updatedFields).forEach(fieldName => {
+                const fieldData = updatedFields[fieldName];
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${fieldName}</td>
+                    <td>${fieldData.definition || ''}</td>
+                    <td>${fieldData.dataType || ''}</td>
+                    <td>${fieldData.populationMethod || ''}</td>
+                    <td>${fieldData.derivedRaw || ''}</td>
+                    <td>${fieldData.calculationLogic || ''}</td>
+                    <td><button onclick="deleteRecord('${fieldName}')">Delete</button></td>
+                `;
+
+                fieldDataTable.appendChild(row);
+            });
+        }
+
+        // Function to delete a record
+        function deleteRecord(fieldName) {
+            if (confirm(`Are you sure you want to delete the record for "${fieldName}"?`)) {
+                delete updatedFields[fieldName];
+                localStorage.setItem('updatedFields', JSON.stringify(updatedFields));
+                populateTable();
+                alert('Record deleted successfully!');
+            }
+        }
+
+        // Initial table population
+        populateTable();
+	
+	// Function to go back to the previous page
+        function goBack() {
+            window.location.href = 'createform.html';
+        }
+    </script>
+
+</body>
+</html>
