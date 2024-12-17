@@ -3,11 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Field Update App</title>
+    <title>Home page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            align-items: flex-start; /* Aligns items to the top */
+            background-color: #f4f4f4; /* Background for better contrast */
+        }
+
+        form {
+            width: 50%;
+            max-width: 400px;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 90%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .button-secondary {
+            background-color: #007bff;
+        }
+
+        .button-secondary:hover {
+            background-color: #0056b3;
+        }
+
+        .updated {
+            background-color: #d4edda;
+        }
+
+        /* Style for the <a> tags to look like buttons */
+        .button-link {
+            display: inline-block;
+            width: 90%;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .button-link:hover {
+            background-color: #45a049;
+        }
+
+        .button-link-secondary {
+            background-color: #007bff;
+        }
+
+        .button-link-secondary:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Field Update App</h1>
-    <p>This is the homepage for the application. Use the navigation or buttons to proceed.</p>
-    <a href="createform.html">Click here to update information related to entity and data fields</a>
+
+    <form id="update-form">
+        <h1 style="text-align: center;">Welcome to TAF NL Entity Attribute mapping page</h1>
+
+	<p>The application is designed to offer a seamless and intuitive experience for users when managing entity and field data. Users can easily select an entity and then choose the corresponding field related to that entity. Once the field is selected, users will be prompted to input essential information, including the datatype, a clear definition of the field, and whether the field is raw or derived. If the field is derived, users will also have the option to define the calculation logic used to generate the field’s value. This process will help dashboard development team in understanding the data fields and entity in better way.</p>
+
+        <!-- Link styled as a button for "Update Entity/Datafield Information" -->
+        <a href="createform.html" class="button-link">Update Entity/Datafield Information</a>
+
+        <!-- Link styled as a button for "View Filled Data" -->
+        <a href="view-data.html" class="button-link button-link-secondary">View Filled Data</a>
+    </form>
+
 </body>
 </html>
