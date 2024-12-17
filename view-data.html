@@ -29,14 +29,27 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-right: 5px;
+        }
+        button.edit-btn {
+            background-color: #4CAF50;
+        }
+        button.save-btn {
+            background-color: #008CBA;
         }
         button:hover {
-            background-color: #d32f2f;
+            opacity: 0.8;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-	<h1 style="text-align: center;">Filled Data</h1>
+    <h1 style="text-align: center;">View Filled Data</h1>
 
     <table id="field-data-table">
         <thead>
@@ -54,7 +67,7 @@
             <!-- Rows will be populated dynamically -->
         </tbody>
     </table>
-	<button onclick="goBack()">Back</button>
+    <button onclick="goBack()">Back</button>
     <script>
         const fieldDataTable = document.getElementById('field-data-table').querySelector('tbody');
         const updatedFields = JSON.parse(localStorage.getItem('updatedFields')) || {};
@@ -65,7 +78,6 @@
             Object.keys(updatedFields).forEach(fieldName => {
                 const fieldData = updatedFields[fieldName];
                 const row = document.createElement('tr');
-
                 row.innerHTML = `
                     <td>${fieldName}</td>
                     <td>${fieldData.definition || ''}</td>
@@ -73,11 +85,55 @@
                     <td>${fieldData.populationMethod || ''}</td>
                     <td>${fieldData.derivedRaw || ''}</td>
                     <td>${fieldData.calculationLogic || ''}</td>
-                    <td><button onclick="deleteRecord('${fieldName}')">Delete</button></td>
+                    <td>
+                        <button class="edit-btn" onclick="editRecord('${fieldName}', this)">Edit</button>
+                        <button onclick="deleteRecord('${fieldName}')">Delete</button>
+                    </td>
                 `;
-
                 fieldDataTable.appendChild(row);
             });
+        }
+
+        // Function to edit a record
+        function editRecord(fieldName, editButton) {
+            const row = editButton.closest('tr');
+            const cells = row.querySelectorAll('td');
+            const fieldData = updatedFields[fieldName];
+
+            // Convert data cells to input fields
+            cells[1].innerHTML = `<input type="text" value="${fieldData.definition || ''}" />`;
+            cells[2].innerHTML = `<input type="text" value="${fieldData.dataType || ''}" />`;
+            cells[3].innerHTML = `<input type="text" value="${fieldData.populationMethod || ''}" />`;
+            cells[4].innerHTML = `<input type="text" value="${fieldData.derivedRaw || ''}" />`;
+            cells[5].innerHTML = `<input type="text" value="${fieldData.calculationLogic || ''}" />`;
+
+            // Change the Edit button to Save
+            editButton.textContent = 'Save';
+            editButton.className = 'save-btn';
+            editButton.onclick = () => saveRecord(fieldName, editButton);
+        }
+
+        // Function to save the updated record
+        function saveRecord(fieldName, saveButton) {
+            const row = saveButton.closest('tr');
+            const cells = row.querySelectorAll('td');
+
+            // Update the updatedFields object with new values
+            updatedFields[fieldName] = {
+                definition: cells[1].querySelector('input').value,
+                dataType: cells[2].querySelector('input').value,
+                populationMethod: cells[3].querySelector('input').value,
+                derivedRaw: cells[4].querySelector('input').value,
+                calculationLogic: cells[5].querySelector('input').value
+            };
+
+            // Save updated data to localStorage
+            localStorage.setItem('updatedFields', JSON.stringify(updatedFields));
+
+            // Repopulate the table to reflect changes
+            populateTable();
+
+            alert('Record updated successfully!');
         }
 
         // Function to delete a record
@@ -90,14 +146,13 @@
             }
         }
 
-        // Initial table population
-        populateTable();
-	
-	// Function to go back to the previous page
+        // Function to go back to the previous page
         function goBack() {
             window.location.href = 'createform.html';
         }
-    </script>
 
+        // Initial table population
+        populateTable();
+    </script>
 </body>
 </html>
